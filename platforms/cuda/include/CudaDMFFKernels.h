@@ -58,7 +58,7 @@ private:
 
     // graph_file 1 and 2 are used for alchemical simulation.
     std::string graph_file, graph_file_1, graph_file_2;
-    cppflow::model jax_model;
+    cppflow::model* jax_model;
     vector<int64_t> coord_shape = vector<int64_t>(2);
     vector<int64_t> box_shape{3, 3};
     vector<int64_t> pair_shape = vector<int64_t>(2);

@@ -56,9 +56,9 @@ void CudaCalcDMFFForceKernel::initialize(const System& system, const DMFFForce& 
     exclusions.resize(natoms);
    
     // Load the ordinary graph firstly.
-    jax_model.init(graph_file);
+    jax_model = new cppflow::model(graph_file);
 
-    operations = jax_model.get_operations();
+    operations = jax_model->get_operations();
     for (int ii = 0; ii < operations.size(); ii++){
         if (operations[ii].find("serving")!= std::string::npos){
             if (operations[ii].find("0")!= std::string::npos){
@@ -144,7 +144,7 @@ double CudaCalcDMFFForceKernel::execute(ContextImpl& context, bool includeForces
     pair_tensor = cppflow::tensor(pairs_v, pair_shape);
 
     // Calculate the energy and forces.
-    output_tensors = jax_model({{input_node_names[0], coord_tensor}, {input_node_names[1], box_tensor}, {input_node_names[2], pair_tensor}}, {"PartitionedCall:0", "PartitionedCall:1"});
+    output_tensors = (*jax_model)({{input_node_names[0], coord_tensor}, {input_node_names[1], box_tensor}, {input_node_names[2], pair_tensor}}, {"PartitionedCall:0", "PartitionedCall:1"});
     
     dener = output_tensors[0].get_data<ENERGYTYPE>()[0];
     dforce = output_tensors[1].get_data<VALUETYPE>();    
